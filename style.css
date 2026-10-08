@@ -184,3 +184,11 @@ p { margin: 0; }
   .tasks li, .period, .team-row, .contact-list div { grid-template-columns: minmax(0, 1fr); gap: 4px; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* 한글 라벨은 고정폭 글꼴에 한글이 없어 자간이 벌어지므로 본문 글꼴로 쓴다 */
+.eyebrow, .spec dt, .team-tag, .contact-list dt, .stage-no {
+  font-family: var(--sans);
+  letter-spacing: .02em;
+  font-weight: 600;
+}
+.eyebrow { font-size: 14px; }
