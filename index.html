@@ -11,7 +11,7 @@
 <meta property="og:url" content="https://gaonjh.com/">
 <meta property="og:locale" content="ko_KR">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<meta name="theme-color" content="#11273b">
+<meta name="theme-color" content="#e7f653">
 <link rel="stylesheet" href="style.css">
 <script defer src="assets/point-map.js"></script>
 <script defer src="assembly.js"></script>
@@ -19,107 +19,43 @@
 <body id="home">
 <a class="skip" href="#main">본문으로 바로가기</a>
 <header class="mast">
-  <div class="wrap mast-row">
-    <a class="brand" href="#home" aria-label="가온제이에이치 첫 화면"><img src="favicon.svg" width="37" height="37" alt=""><strong>가온제이에이치</strong></a>
-    <nav aria-label="주요 메뉴">
-      <a class="section-link" href="#bteam">B팀이 맡는 일</a><a class="section-link" href="#process">진행 방식</a><a class="section-link" href="#history">해 온 일</a>
-      <a class="nav-contact" href="#contact">프로젝트 문의 <span class="arrow down" aria-hidden="true"></span></a>
-    </nav>
-  </div>
+  <a class="wordmark" href="#home" aria-label="가온제이에이치 첫 화면">GAONJH<span>가온제이에이치</span></a>
+  <nav aria-label="주요 메뉴">
+    <a class="section-link" href="#history">해 온 일</a><a class="section-link" href="#bteam">B팀의 역할</a><a class="section-link" href="#process">구간별 계약</a>
+    <a class="nav-contact" href="#contact">프로젝트 문의 <i class="arrow" aria-hidden="true"></i></a>
+  </nav>
 </header>
 <main id="main">
   <section class="hero" aria-labelledby="claim">
-    <div class="wrap hero-layout">
-      <div class="hero-copy">
-        <h1 id="claim">AI는 A팀이,<br>피지컬은 <em>B팀</em>이.</h1>
-        <p class="hero-lead"><strong>AI·로봇 스타트업의 하드웨어 B팀.</strong><br><span>파인 튜닝을 시작할 피지컬을</span> <span>결정된 양산 방향으로, 더 빨리 만듭니다.</span></p>
-        <div class="hero-actions"><a class="primary" href="mailto:skw@gaonjh.com">메일로 문의하기 <span class="arrow" aria-hidden="true"></span></a>
-          <a class="phone" href="tel:01071491224"><span>전화</span> 010-7149-1224</a></div>
+    <div class="cover-word" aria-hidden="true"><span>B–</span><span>TEAM</span><i class="baseline"></i></div>
+    <canvas id="particles" aria-hidden="true"></canvas>
+    <div class="cover-copy">
+      <h1 id="claim">AI는 A팀이,<br>피지컬은 <em>B팀</em>이.</h1>
+      <p class="hero-lead">AI·로봇 스타트업의 하드웨어 B팀.<br>파인 튜닝을 시작할 피지컬을 결정된 양산 방향으로, 더 빨리 만듭니다.</p>
+      <div class="hero-actions"><a class="primary" href="mailto:skw@gaonjh.com">메일로 문의 <i class="arrow" aria-hidden="true"></i></a><a class="phone" href="tel:01071491224">전화 <span>010-7149-1224</span></a></div>
+    </div>
+    <figure class="drawing" aria-labelledby="drawing-title">
+      <div class="artwork">
+        <img class="part-image" src="assets/humanoid.webp" width="1284" height="1070" fetchpriority="high" alt="아이보리색 휴머노이드가 고개를 살짝 숙이고 왼쪽으로 손바닥을 펼친 모습">
       </div>
-      <figure class="drawing" data-view="part" aria-labelledby="drawing-title">
-        <div class="drawing-field">
-          <div class="artwork">
-            <div class="guides" aria-hidden="true">
-              <svg viewBox="0 0 790 660" fill="none" preserveAspectRatio="none">
-
-                <path class="leader-shadow" d="m635 279 43-69h72M116 453l-34 71H18"/><path d="m635 279 43-69h72M116 453l-34 71H18"/>
-                <circle cx="635" cy="279" r="4.5"/><circle cx="116" cy="453" r="4.5"/>
-              </svg>
-              <span class="label shoulder">어깨 관절</span><span class="label gripper">그리퍼</span>
-            </div>
-            <img class="part-image" src="assets/robot-arm.webp" width="790" height="660" fetchpriority="high" alt="두 손가락 그리퍼와 구리색 어깨 관절이 있는 탁상형 로봇 팔 개념 이미지">
-            <canvas id="particles" width="790" height="660" aria-hidden="true"></canvas>
-          </div>
-        </div>
-        <figcaption><span id="drawing-title">로봇 팔 설계 개념도</span>
-          <div class="view-switch" role="group" aria-label="도해 모양 선택" hidden>
-            <button type="button" data-shape="part" aria-pressed="true">로봇 팔</button>
-            <button type="button" data-shape="type" aria-pressed="false">B팀</button>
-          </div>
-        </figcaption>
-      </figure>
-    </div>
+      <figcaption id="drawing-title">휴머노이드 개념 이미지</figcaption>
+    </figure>
   </section>
-  <dl class="wrap facts" aria-label="한눈에 보는 가온제이에이치">
-    <div><dt>설계·기획</dt><dd>경기도 부천</dd></div>
-    <div><dt>가공·조립</dt><dd>대구 북구 공장</dd></div>
-    <div><dt>제어·시험 구동</dt><dd>제어 엔지니어</dd></div>
-    <div><dt>개발 경력</dt><dd>30년</dd></div>
-    <div><dt>계약</dt><dd>구간마다</dd></div>
-  </dl>
 
-  <section id="bteam" class="section wrap with-rule">
-    <div class="role-layout">
-      <h2>대표님 팀은 A팀,<br> 저희는 B팀</h2>
-      <div class="teams">
-        <article><div class="team-label"><span class="letter" aria-hidden="true">A</span><h3>A팀 · 대표님 팀</h3></div>
-          <ul><li>AI 모델</li><li>파인 튜닝</li><li>핵심 기술</li></ul></article>
-        <article class="our-role"><div class="team-label"><span class="letter" aria-hidden="true">B</span><h3>B팀 · 가온제이에이치</h3></div>
-          <ul><li>피지컬 설계·제작</li><li>제어 구성·시험 구동</li><li>양산 준비</li></ul></article>
+  <section id="history" class="archive section">
+    <div class="index-heading">
+      <h2>해 온 일</h2><p class="years-display" aria-label="1994년부터 2026년까지">1994<span>—</span>2026</p>
+    </div>
+    <div class="archive-spread">
+      <div class="archive-intro">
+        <p class="archive-statement">금형에서<br> 로봇까지.</p>
+        <p>개발 경력 30년. 1994년 3D 설계로 시작해 금형 1,000벌 이상, 다수의 자동화 장비를 만들었습니다.</p>
+        <p class="early-locations">부천에서 설계하고 대구 북구 공장에서 가공·조립합니다.</p>
+        <p class="disclosure">고객사 이름과 포트폴리오는 비밀 유지 서약 이유로 공개하지 않습니다.</p>
       </div>
-    </div>
-    <div class="service-layout">
-      <div><h3>이런 팀의 B팀이 됩니다</h3><ul class="team-needs">
-        <li>아이디어는 있는데 시험할 피지컬이 없는 팀</li>
-        <li>시제품을 양산 구조로 다시 만들어야 하는 팀</li>
-        <li>하드웨어 엔지니어를 구하는 중인 팀</li>
-      </ul></div>
-      <div><h3>B팀이 맡는 일</h3><ul class="services">
-        <li>시험용 피지컬</li><li>데이터 수집 장비</li><li>엔드이펙터·센서 장착부</li>
-        <li>양산형 외장</li><li>조립·시험 지그</li><li>제어 구성과 첫 구동</li>
-      </ul></div>
-    </div>
-  </section>
-
-  <section class="reasons">
-    <div class="section wrap role-layout"><h2>B팀이<br> 더 빠른 이유</h2>
-      <div class="reason-list">
-        <article><h3>처음부터 결정된 양산 방향으로</h3><p>1호기에서 한 튜닝과 데이터를 양산품에서 그대로 씁니다.</p></article>
-        <article><h3>제조 현장을 압니다</h3><p>개발 경력 30년. 한국·베트남·중국에서 양산을 관리했습니다.</p></article>
-        <article><h3>필요한 만큼만 투자</h3><p>3D 프린팅, 가공, 금형 순서로 단계를 나눕니다.</p></article>
-      </div>
-    </div>
-  </section>
-
-  <section id="process" class="process">
-    <div class="section wrap">
-      <div class="process-head"><h2>진행 방식</h2><p>구간마다 계약합니다.</p></div>
-      <ol class="stages">
-        <li><span>1구간</span><h3>움직이는 1호기</h3><p>설계부터 시험 구동까지</p></li>
-        <li><span>2구간</span><h3>개량과 추가 대수</h3><p>튜닝·실증 결과 반영</p></li>
-        <li><span>3구간</span><h3>양산 준비</h3><p>금형, 지그, 협력사 연결</p></li>
-      </ol>
-    </div>
-  </section>
-
-  <section id="history" class="section wrap archive">
-    <div class="archive-intro"><h2>해 온 일</h2>
-      <p>1994년 3D 설계로 시작해 금형 1,000벌 이상, 다수의 자동화 장비를 만들었습니다.</p>
-      <p class="disclosure">고객사 이름과 포트폴리오는 비밀 유지 서약 이유로 공개하지 않습니다.</p>
-    </div>
-    <div class="archive-body">
-      <div class="timeline">
-        <details class="period" open>
+      <div class="archive-body">
+        <div class="timeline">
+          <details class="period" open>
           <summary><span class="years">2025 — 2026</span><span class="period-lead">오이 수확 로봇 외 4건</span><span class="expand-icon" aria-hidden="true"></span></summary>
           <ul>
             <li><b>오이 수확 로봇</b>양팔·리프트·비전, 농업 로봇 회사의 B팀으로 개발(진행 중)</li>
@@ -145,6 +81,7 @@
             <li><b>차량용 디스플레이 조립 지그</b>설계</li>
           </ul>
         </details>
+        <details class="archive-more"><summary>1994–2022 이력 보기</summary>
         <details class="period">
           <summary><span class="years">2020 — 2022</span><span class="period-lead">타워형 고밀도 택배 보관설비 외 2건</span><span class="expand-icon" aria-hidden="true"></span></summary>
           <ul>
@@ -202,25 +139,55 @@
             <li><b>3D 모델링 시작</b>CAD·CAM(1994)</li>
           </ul>
         </details>
+        </details>
+        </div>
+        <ul class="capabilities" aria-label="원래 하던 일"><li>제품 디자인</li><li>기구 설계(PM)</li><li>장비·지그 설계</li><li>금형 제작</li><li>부품 가공</li><li>양산(BOM)</li></ul>
       </div>
-      <ul class="capabilities" aria-label="원래 하던 일">
-        <li>제품 디자인</li><li>기구 설계(PM)</li><li>장비·지그 설계</li><li>금형 제작</li><li>부품 가공</li><li>양산(BOM)</li>
-      </ul>
     </div>
   </section>
-  <section id="contact" class="contact">
-    <div class="section wrap contact-layout">
-      <h2>피지컬이 필요한<br>기술이 있다면,<br><em>B팀</em>을 불러 주세요.</h2>
-      <div><dl class="contacts">
-        <div><dt>메일</dt><dd><a href="mailto:skw@gaonjh.com">skw@gaonjh.com <span class="arrow" aria-hidden="true"></span></a></dd></div>
-        <div><dt>전화</dt><dd><a href="tel:01071491224">010-7149-1224</a></dd></div>
-        <div><dt>담당</dt><dd>서경원</dd></div>
-        <div><dt>설계 사무실</dt><dd>경기도 부천시 (골든IT 625호)</dd></div>
-        <div><dt>공장</dt><dd>대구광역시 북구</dd></div>
-      </dl></div>
+
+  <section id="bteam" class="role">
+    <figure class="macro"><img loading="lazy" src="assets/robot-detail.webp" width="1400" height="933" alt="휴머노이드의 주름진 목과 반투명 올리브색 관절, 아이보리색 어깨 외피를 가까이 본 모습"><figcaption>휴머노이드 개념 이미지 · 목과 어깨</figcaption></figure>
+    <div class="role-story">
+      <h2>대표님 팀은 A팀,<br>저희는 B팀.</h2>
+      <dl class="role-pair">
+        <div><dt>A팀 <span>대표님 팀</span></dt><dd>AI 모델, 파인 튜닝, 핵심 기술</dd></div>
+        <div><dt>B팀 <span>가온제이에이치</span></dt><dd>피지컬 설계·제작, 제어 구성·시험 구동, 양산 준비</dd></div>
+      </dl>
+      <h3>이런 팀의 B팀이 됩니다</h3>
+      <ul class="needs"><li>아이디어는 있는데 시험할 피지컬이 없는 팀</li><li>시제품을 양산 구조로 다시 만들어야 하는 팀</li><li>하드웨어 엔지니어를 구하는 중인 팀</li></ul>
     </div>
+  </section>
+
+  <section class="scope section">
+    <h2>B팀이 맡는 일</h2>
+    <ul class="scope-list">
+      <li>시험용 피지컬</li><li>데이터 수집 장비</li><li>엔드이펙터·센서 장착부</li><li>양산형 외장</li><li>조립·시험 지그</li><li>제어 구성과 첫 구동</li>
+    </ul>
+  </section>
+
+  <section id="process" class="process section">
+    <div class="process-title"><h2>구간마다<br><em>계약합니다.</em></h2><p>3D 프린팅, 가공, 금형 순서로 단계를 나누어 필요한 만큼만 투자합니다.</p></div>
+    <ol class="stages">
+      <li><span class="stage-num" aria-label="1구간">01</span><div><h3>움직이는 1호기</h3><p>설계부터 시험 구동까지</p></div></li>
+      <li><span class="stage-num" aria-label="2구간">02</span><div><h3>개량과 추가 대수</h3><p>튜닝·실증 결과 반영</p></div></li>
+      <li><span class="stage-num" aria-label="3구간">03</span><div><h3>양산 준비</h3><p>금형, 지그, 협력사 연결</p></div></li>
+    </ol>
+    <div class="reason-line"><h3>B팀이 더 빠른 이유</h3><p><strong>처음부터 결정된 양산 방향으로.</strong> 1호기에서 한 튜닝과 데이터를 양산품에서 그대로 씁니다.</p><p><strong>제조 현장을 압니다.</strong> 한국·베트남·중국에서 양산을 관리했습니다.</p></div>
+  </section>
+
+  <section id="contact" class="contact section">
+    <h2>피지컬이 필요하다면,<br><em>B팀을 불러 주세요.</em></h2>
+    <div class="email-row"><a class="email-large" href="mailto:skw@gaonjh.com">skw@gaonjh.com <i class="arrow" aria-hidden="true"></i></a><button class="copy-email" type="button" hidden>주소 복사</button><span id="copy-status" role="status" class="sr-only"></span></div>
+    <dl class="contacts">
+      <div><dt>담당</dt><dd>서경원</dd></div>
+      <div><dt>전화</dt><dd><a href="tel:01071491224">010-7149-1224</a></dd></div>
+      <div><dt>설계·기획 사무실</dt><dd>경기도 부천시 (골든IT 625호)</dd></div>
+      <div><dt>가공·조립 공장</dt><dd>대구광역시 북구</dd></div>
+      <div><dt>제어·시험 구동</dt><dd>제어 엔지니어</dd></div>
+    </dl>
   </section>
 </main>
-<footer><div class="wrap footer-row"><span>가온제이에이치 (GAONJH) · 하드웨어 B팀</span><span>© 2026 GAONJH</span></div></footer>
+<footer><a class="footer-logo" href="#home" aria-label="가온제이에이치 첫 화면으로">GAONJH</a><div><span>가온제이에이치 · 하드웨어 B팀</span><span>© 2026 GAONJH</span></div></footer>
 </body>
 </html>

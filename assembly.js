@@ -1,142 +1,218 @@
-/* The static drawing loads first. Only the hero's canvas responds to scrolling. */
-(() => {
-  "use strict";
-  const figure = document.querySelector(".drawing");
-  const hero = document.querySelector(".hero");
-  const art = figure.querySelector(".artwork");
-  const image = figure.querySelector(".part-image");
-  const guides = figure.querySelector(".guides");
-  const canvas = figure.querySelector("canvas");
-  const controls = figure.querySelector(".view-switch");
-  const buttons = [...controls.querySelectorAll("button")];
-  const motion = matchMedia("(prefers-reduced-motion: reduce)");
-  const ctx = canvas.getContext("2d");
-  if (!ctx || !window.gaonPointMap) return;
+"use strict";
 
-  const width = 790, height = 660;
-  const packed = atob(window.gaonPointMap.points);
-  const count = packed.length / 3;
-  const sourceX = new Float32Array(count), sourceY = new Float32Array(count);
-  const targetX = new Float32Array(count), targetY = new Float32Array(count);
-  const phase = new Float32Array(count), delay = new Float32Array(count);
-  const bands = window.gaonPointMap.colors.map(() => []);
-  const tones = window.gaonPointMap.colors;
-  const metals = tones.map(hex => {
-    const start = [1,3,5].map(k=>parseInt(hex.slice(k,k+2),16));
-    const [r,g,b] = start;
-    const bright = r-g>9 && r-b>15 ? [255,185,134] : [220,233,241];
-    const tint = .83+.17*(r+g+b)/(3*255);
-    return {start, end:bright.map(v=>Math.round(v*tint))};
-  });
-  let letterMask;
-  for (let i=0; i<count; i++) {
-    sourceX[i]=packed.charCodeAt(i*3)*width/255;
-    sourceY[i]=packed.charCodeAt(i*3+1)*height/255;
-    bands[packed.charCodeAt(i*3+2)].push(i);
-    // Irrational sequences give the same trajectory after reversing the scroll.
-    phase[i]=(i*.61803398875%1)*Math.PI*2;
-    delay[i]=.14*(i*.7548776662%1);
-  }
-  function makeLetters() {
-    const mask=document.createElement("canvas");
-    mask.width=width;mask.height=height;
-    const brush=mask.getContext("2d",{willReadFrequently:true});
-    brush.textAlign="center";brush.textBaseline="alphabetic";
-    brush.font='700 286px "Gaon Site", "Malgun Gothic", sans-serif';
-    const text="B팀", metrics=brush.measureText(text);
-    const baseline=(height+metrics.actualBoundingBoxAscent-metrics.actualBoundingBoxDescent)/2;
-    brush.fillStyle="#dae9ef";
-    brush.fillText(text,width*.50,baseline);
-    letterMask=mask;
-    const pixels=brush.getImageData(0,0,width,height).data, candidates=[];
-    for(let y=2;y<height-2;y+=2)for(let x=2;x<width-2;x+=2){
-      const a=(y*width+x)*4+3;
-      // Leave a narrow inset so the final dot footprints keep Korean counters open.
-      if(pixels[a]>210 && pixels[a-8]>160 && pixels[a+8]>160 &&
-          pixels[a-width*8]>160 && pixels[a+width*8]>160)candidates.push(y*width+x);
+const copyButton = document.querySelector(".copy-email");
+const emailLink = document.querySelector(".email-large");
+const copyStatus = document.querySelector("#copy-status");
+let resetButtonTimer;
+
+async function copyEmail() {
+  const address = emailLink.getAttribute("href").slice("mailto:".length);
+  let copied = false;
+  try {
+    await navigator.clipboard.writeText(address);
+    copied = true;
+  } catch {
+    // Also support local file previews and browsers that block clipboard access.
+    const input = document.createElement("textarea");
+    input.value = address;
+    input.style.cssText = "position:fixed;left:-9999px;top:0";
+    document.body.append(input);
+    input.select();
+    try {
+      copied = document.execCommand("copy");
+    } catch {
+      copied = false;
     }
-    if(!candidates.length)return false;
-    for(let i=0;i<count;i++){
-      const sample=candidates[Math.floor((i*.61803398875%1)*candidates.length)];
-      targetX[i]=sample%width;targetY[i]=Math.floor(sample/width);
-    }
-    return true;
+    input.remove();
+    copyButton.focus({ preventScroll: true });
   }
-  const clamp=v=>Math.max(0,Math.min(1,v));
-  const ease=v=>{v=clamp(v);return v*v*(3-2*v)};
-  let position=0, target=0, manualAt=null, active=true, frame=0, previous=0;
-  let initialized=false, paintKey=-1, lastShape="";
-  const partDescription=image.alt;
+
+  if (!copied) {
+    const range = document.createRange();
+    range.selectNodeContents(emailLink);
+    const selection = getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+  copyStatus.textContent = copied ? "메일 주소를 복사했습니다." : "메일 주소를 선택해 직접 복사해 주세요.";
+  copyButton.textContent = copied ? "복사됨" : "주소 선택";
+  clearTimeout(resetButtonTimer);
+  resetButtonTimer = setTimeout(() => {
+    copyButton.textContent = "주소 복사";
+    copyStatus.textContent = "";
+  }, 2200);
+}
+
+copyButton.hidden = false;
+copyButton.addEventListener("click", copyEmail);
+
+function animateCover() {
+  const hero = document.querySelector(".hero");
+  const canvas = hero.querySelector("canvas");
+  const artwork = hero.querySelector(".artwork");
+  const image = artwork.querySelector("img");
+  const word = hero.querySelector(".cover-word");
+  const baseline = word.querySelector(".baseline");
+  const mast = document.querySelector(".mast");
+  const ctx = canvas.getContext("2d");
+  const desktop = matchMedia("(min-width:701px)");
+  const reduced = matchMedia("(prefers-reduced-motion:reduce)");
+  let field = null;
+  let frame = 0;
+  let visible = true;
+  let progress = 0;
+  let target = 0;
+  let previousTime = 0;
+  let measuredWidth = -1;
+  let measuredHeight = -1;
+  let fontsReady = false;
+
+  const clamp = value => Math.min(1, Math.max(0, value));
+  function ease(value) {
+    const t = clamp(value);
+    return t * t * (3 - 2 * t);
+  }
+
+  function buildField() {
+    const bounds = hero.getBoundingClientRect();
+    const artBounds = artwork.getBoundingClientRect();
+    const textBounds = word.getBoundingClientRect();
+    const mask = document.createElement("canvas");
+    mask.width = Math.ceil(bounds.width);
+    mask.height = Math.max(1, Math.ceil(textBounds.bottom - bounds.top + 3));
+
+    // Sample the same face, tracking, and baseline the browser uses for the poster.
+    const brush = mask.getContext("2d", { willReadFrequently: true });
+    const style = getComputedStyle(word);
+    brush.font = style.fontWeight + " " + style.fontSize + " " + style.fontFamily;
+    brush.letterSpacing = style.letterSpacing;
+    brush.fillText("B–TEAM", textBounds.left - bounds.left, baseline.getBoundingClientRect().top - bounds.top);
+    const pixels = brush.getImageData(0, 0, mask.width, mask.height).data;
+    const destinations = [];
+    for (let y = 1; y < mask.height - 1; y += 3) {
+      for (let x = 1; x < mask.width - 1; x += 3) {
+        const index = y * mask.width + x;
+        if (pixels[index * 4 + 3] > 200) destinations.push(index);
+      }
+    }
+    if (!destinations.length) return null;
+
+    const aspect = Number(image.getAttribute("width")) / Number(image.getAttribute("height"));
+    const width = Math.min(artBounds.width, artBounds.height * aspect);
+    const height = width / aspect;
+    const left = artBounds.right - bounds.left - width;
+    const top = artBounds.bottom - bounds.top - height;
+    const map = window.gaonPointMap;
+    const bytes = atob(map.points);
+    const groups = map.colors.map(hex => ({
+      rgb: [1, 3, 5].map(offset => parseInt(hex.slice(offset, offset + 2), 16)),
+      points: []
+    }));
+
+    // Fixed sequences distribute the targets and trajectories identically in both scroll directions.
+    for (let i = 0; i < bytes.length / 3; i++) {
+      const destination = destinations[Math.floor((i * 0.61803398875 % 1) * destinations.length)];
+      const group = groups[bytes.charCodeAt(i * 3 + 2)];
+      group.points.push({
+        x: left + bytes.charCodeAt(i * 3) / 255 * width,
+        y: top + bytes.charCodeAt(i * 3 + 1) / 255 * height,
+        endX: destination % mask.width,
+        endY: Math.floor(destination / mask.width),
+        delay: 0.13 * (i * 0.7548776662 % 1),
+        phase: (i * 0.414213563 % 1) * Math.PI * 2
+      });
+    }
+    return groups;
+  }
+
+  function layout() {
+    cancelAnimationFrame(frame);
+    frame = 0;
+    progress = 0;
+    previousTime = 0;
+    field = null;
+    image.style.removeProperty("opacity");
+    hero.style.removeProperty("--word-opacity");
+    hero.style.removeProperty("--word-travel");
+    canvas.width = canvas.height = 1;
+    hero.dataset.visual = "static";
+    measuredWidth = hero.clientWidth;
+    measuredHeight = hero.clientHeight;
+    if (!fontsReady || !desktop.matches || reduced.matches || !ctx || !window.gaonPointMap) return;
+
+    const density = Math.min(devicePixelRatio || 1, 1.75);
+    canvas.width = Math.max(1, Math.round(measuredWidth * density));
+    canvas.height = Math.max(1, Math.round(measuredHeight * density));
+    field = buildField();
+    if (field) {
+      hero.dataset.visual = "ready";
+      followScroll();
+    }
+  }
+
   function paint(p) {
-    if(paintKey===p)return;
-    paintKey=p;
-    ctx.setTransform(canvas.width/width,0,0,canvas.height/height,0,0);
-    ctx.clearRect(0,0,width,height);
-    const dissolve=ease(p/.21);
-    image.style.opacity=1-dissolve;guides.style.opacity=1-ease(p/.19);
-    if(dissolve>0){
-      const settle=ease((p-.57)/.39);
-      if(settle>0){
-        ctx.globalAlpha=.14*settle;
-        ctx.drawImage(letterMask,0,0);
+    ctx.setTransform(canvas.width / measuredWidth, 0, 0, canvas.height / measuredHeight, 0, 0);
+    ctx.clearRect(0, 0, measuredWidth, measuredHeight);
+    const travel = p * Math.min(100, measuredHeight * 0.13);
+    hero.style.setProperty("--word-travel", travel + "px");
+    hero.style.setProperty("--word-opacity", String(1 - 0.65 * Math.sin(Math.PI * p)));
+    image.style.opacity = String(1 - ease(p / 0.40));
+    if (p <= 0.003 || p >= 0.999) return;
+
+    ctx.globalAlpha = ease(p / 0.20) * (1 - ease((p - 0.84) / 0.16));
+    const ink = ease((p - 0.45) / 0.48);
+    const spread = Math.min(80, measuredWidth * 0.048);
+    const size = Math.max(1.65, measuredWidth * 0.00155);
+    for (const group of field) {
+      const color = group.rgb.map(channel => Math.round(channel + (27 - channel) * ink));
+      ctx.fillStyle = "rgb(" + color.join(",") + ")";
+      for (const point of group.points) {
+        const t = ease((p - point.delay) / (1 - point.delay));
+        const arc = Math.sin(Math.PI * t) * spread;
+        const x = point.x + (point.endX - point.x) * t + arc * Math.sin(point.phase + t * 4);
+        const y = point.y + (point.endY + travel - point.y) * t + arc * Math.cos(point.phase + t * 3);
+        ctx.fillRect(x, y, size, size);
       }
-      ctx.globalAlpha=dissolve;
-      for(let b=0;b<bands.length;b++){
-        const {start,end}=metals[b];
-        ctx.fillStyle=settle===0 ? tones[b] :
-          "rgb("+start.map((v,j)=>Math.round(v+(end[j]-v)*settle)).join(",")+")";
-        for(const i of bands[b]){
-          const u=ease((p-delay[i])/(1-delay[i])), spread=Math.sin(Math.PI*u);
-          const x=sourceX[i]+(targetX[i]-sourceX[i])*u+spread*85*Math.sin(phase[i]+u*4);
-          const y=sourceY[i]+(targetY[i]-sourceY[i])*u+spread*78*Math.cos(phase[i]+u*3);
-          const size=2.4+.75*Math.sin(phase[i])+.42*u;
-          ctx.fillRect(x-size*.5,y-size*.5,size,size);
-        }
-      }
-      ctx.globalAlpha=1;
     }
-    const shape=p>=.5?"type":"part";
-    if(shape!==lastShape){
-      lastShape=shape;figure.dataset.view=shape;
-      image.alt=shape==="part"?partDescription:"같은 로봇 팔 입자가 모여 이룬 ‘B팀’ 글자";
-      buttons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.shape===shape)));
+    ctx.globalAlpha = 1;
+  }
+
+  function update(now) {
+    frame = 0;
+    if (!field || !visible) return;
+    const elapsed = previousTime ? Math.min(64, now - previousTime) : 17;
+    previousTime = now;
+    progress += (target - progress) * (1 - Math.exp(-elapsed / 88));
+    if (Math.abs(target - progress) < 0.001) progress = target;
+    paint(progress);
+    if (progress !== target) {
+      frame = requestAnimationFrame(update);
+    } else {
+      previousTime = 0;
     }
   }
-  function tick(now) {
-    frame=0;
-    if(!initialized || !active)return;
-    const dt=previous?Math.min(64,now-previous):16.7;
-    previous=now;
-    position=motion.matches?target:position+(target-position)*(1-Math.exp(-dt/110));
-    if(Math.abs(target-position)<.001)position=target;
-    paint(position);
-    if(position!==target)frame=requestAnimationFrame(tick);else previous=0;
+
+  function followScroll() {
+    if (!field || !visible) return;
+    const bounds = hero.getBoundingClientRect();
+    target = clamp((mast.offsetHeight - bounds.top - 5) / Math.min(260, bounds.height * 0.34));
+    if (!frame) frame = requestAnimationFrame(update);
   }
-  function schedule(){if(!frame && active && initialized)frame=requestAnimationFrame(tick)}
-  function followScroll(){
-    if(manualAt!==null && Math.abs(scrollY-manualAt)<24)return;
-    manualAt=null;
-    const rect=hero.getBoundingClientRect();
-    const top=document.querySelector(".mast").getBoundingClientRect().height;
-    target=motion.matches?0:ease((top-rect.top-8)/Math.max(1,rect.height*.59));
-    schedule();
-  }
-  function resize(){
-    const ratio=Math.min(devicePixelRatio||1,2),r=art.getBoundingClientRect();
-    canvas.width=Math.max(1,Math.round(r.width*ratio));canvas.height=Math.max(1,Math.round(r.height*ratio));
-    paintKey=-1;followScroll();schedule();
-  }
-  buttons.forEach(b=>b.addEventListener("click",()=>{
-    manualAt=scrollY;target=b.dataset.shape==="type"?1:0;schedule();
-  }));
-  motion.addEventListener("change",()=>{manualAt=null;followScroll()});
-  addEventListener("scroll",followScroll,{passive:true});
-  new ResizeObserver(resize).observe(art);
-  new IntersectionObserver(entries=>{
-    active=entries[0].isIntersecting;if(active){followScroll();schedule()}
-  }).observe(figure);
-  document.fonts.load('700 80px "Gaon Site"',"B팀").catch(()=>{}).then(()=>{
-    initialized=makeLetters();
-    if(initialized){controls.hidden=false;resize()}
+
+  addEventListener("scroll", followScroll, { passive: true });
+  new IntersectionObserver(([entry]) => {
+    visible = entry.isIntersecting;
+    if (visible) followScroll();
+  }).observe(hero);
+  new ResizeObserver(() => {
+    if (measuredWidth !== hero.clientWidth || measuredHeight !== hero.clientHeight) layout();
+  }).observe(hero);
+  desktop.addEventListener("change", layout);
+  reduced.addEventListener("change", layout);
+  document.fonts.ready.then(() => {
+    fontsReady = true;
+    layout();
   });
-})();
+}
+
+animateCover();
