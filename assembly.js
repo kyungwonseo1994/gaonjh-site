@@ -133,6 +133,7 @@ function animateCover() {
     field = null;
     image.style.removeProperty("opacity");
     hero.style.removeProperty("--word-opacity");
+    hero.style.removeProperty("--word-fill");
     hero.style.removeProperty("--word-travel");
     canvas.width = canvas.height = 1;
     hero.dataset.visual = "static";
@@ -153,9 +154,10 @@ function animateCover() {
   function paint(p) {
     ctx.setTransform(canvas.width / measuredWidth, 0, 0, canvas.height / measuredHeight, 0, 0);
     ctx.clearRect(0, 0, measuredWidth, measuredHeight);
-    const travel = p * Math.min(100, measuredHeight * 0.13);
+    const travel = -p * Math.min(44, measuredHeight * 0.06);
     hero.style.setProperty("--word-travel", travel + "px");
-    hero.style.setProperty("--word-opacity", String(1 - 0.65 * Math.sin(Math.PI * p)));
+    hero.style.setProperty("--word-opacity", String(1 - 0.45 * Math.sin(Math.PI * p)));
+    hero.style.setProperty("--word-fill", String(ease((p - 0.3) / 0.68)));
     image.style.opacity = String(1 - ease(p / 0.40));
     if (p <= 0.003 || p >= 0.999) return;
 
